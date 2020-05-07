@@ -14,7 +14,7 @@ Module.register("MMM-NetworkScanner", {
 	defaults: {
 		devices: [], // an array of device objects e.g. { macAddress: "aa:bb:cc:11:22:33", name: "DEVICE-NAME", icon: "FONT-AWESOME-ICON"}
 		network: "-l", // a Local Network IP mask to limit the mac address scan, i.e. `192.168.0.0/24`. Use `-l` for the entire localnet
-		showUnknown: true, // shows devices found on the network even if not specified in the 'devices' option 
+		showUnknown: true, // shows devices found on the network even if not specified in the 'devices' option
 		showOffline: true, // shows devices specified in the 'devices' option even when offline
 		showLastSeen: false, // shows when the device was last seen e.g. "Device Name - last seen 5 minutes ago"
 		keepAlive: 180, // how long (in seconds) a device should be considered 'alive' since it was last found on the network
@@ -30,10 +30,12 @@ Module.register("MMM-NetworkScanner", {
 		showLastSeenWhenOffline: false, // show last seen only when offline //
 
 		debug: false,
-		
+
 		// sjj: show table as device rows or as device columns
 		showDeviceColums: false,
 		coloredState: false,
+		// bp: added for limiting devices in 1 rows
+		deviceInOneRow: 5,
 	},
 
 	// Subclass start method.
@@ -187,17 +189,28 @@ Module.register("MMM-NetworkScanner", {
 		// Display device status
 		var deviceTable = document.createElement("table");
 		deviceTable.classList.add("deviceTable", "small");
-		
+
 		// sjj: Show devices in columns
 		// generate header row and device state row
-		
+
 		var headerRow = document.createElement("tr");
 		headerRow.classList.add("headerRow", "dimmed");
 		var devStateRow = document.createElement("tr");
 		devStateRow.classList.add("devStateRow", "dimmed");
-		
+
+//******************BP Edits: code edits to allow new line after specified devices and notification for new device
+//***************************************************************************************************************
+		var deviceInRow = 0;
+
 		this.networkDevices.forEach(function(device) {
-			
+
+			deviceInRow += 1;
+
+			if (device.type == "Unknown") {
+				self.sendNotification("SHOW_ALERT", {type: "notification", timer: 5000, imageFA: "exclamation-triangle", title: "New Device!", message: "A new device connected to your network!!<BR>Device MAC: " + device.macAddress.toUpperCase() });
+			}
+
+
 			if (device && (device.online || device.showOffline)) {
 
 				// device row
@@ -226,7 +239,7 @@ Module.register("MMM-NetworkScanner", {
 				deviceRow.appendChild(deviceCell);
 
 				// When last seen
-				if ((self.config.showLastSeen && device.lastSeen  && !self.config.showLastSeenWhenOffline) || 
+				if ((self.config.showLastSeen && device.lastSeen  && !self.config.showLastSeenWhenOffline) ||
 					(self.config.showLastSeen && !device.lastSeen &&  self.config.showLastSeenWhenOffline)) {
 					var dateCell = document.createElement("td");
 					dateCell.classList.add("dateCell", "dimmed", "light");
@@ -237,8 +250,10 @@ Module.register("MMM-NetworkScanner", {
 				}
 
 				// sjj: Append a new row if showDeviceColums and showInNewRow are both true
-
-				if (self.config.showDeviceColums && device.showInNewRow) {
+				//if (self.config.showDeviceColums && device.showInNewRow) {
+				//bp: apped a new row when deviceInOneRow is reached
+				if (self.config.showDeviceColums && deviceInRow > self.config.deviceInOneRow) {
+					deviceInRow = 0;
 					// append the previously processed devices to the table
 					deviceTable.appendChild(headerRow);
 					deviceTable.appendChild(devStateRow);
@@ -257,11 +272,11 @@ Module.register("MMM-NetworkScanner", {
 				headerDevCell.innerHTML += device.name;
 
 				headerRow.appendChild(headerDevCell);
-				
+
 				// device state row
 				var devStateCell = document.createElement("td");
 				devStateCell.classList.add("devStateCell");
-				
+
 				// color online / offline
 				if (self.config.coloredState) {
 					if (device.online) {
@@ -270,12 +285,12 @@ Module.register("MMM-NetworkScanner", {
 						icon.style.cssText = "color: " + device.colorStateOffline;
 					};
 				}
-				
+
 				devStateCell.appendChild(icon);
 
 				devStateRow.appendChild(devStateCell);
 
-				// sjj: show as Device rows or as Device columns 
+				// sjj: show as Device rows or as Device columns
 				if (!self.config.showDeviceColums) {
 					deviceTable.appendChild(deviceRow);
 				}
@@ -284,8 +299,8 @@ Module.register("MMM-NetworkScanner", {
 				if (this.config.debug) Log.info(self.name + " Online, but ignoring: '" + device + "'");
 			}
 		});
-		
-		// sjj: show as Device rows or as Device columns 
+
+		// sjj: show as Device rows or as Device columns
 		if (self.config.showDeviceColums) {
 			deviceTable.appendChild(headerRow);
 			deviceTable.appendChild(devStateRow);
