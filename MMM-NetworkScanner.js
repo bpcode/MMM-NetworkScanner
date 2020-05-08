@@ -36,6 +36,7 @@ Module.register("MMM-NetworkScanner", {
 		coloredState: false,
 		// bp: added for limiting devices in 1 rows
 		deviceInOneRow: 5,
+		sortBy: "type" // type , name
 	},
 
 	// Subclass start method.
@@ -123,8 +124,15 @@ Module.register("MMM-NetworkScanner", {
 			if (this.config.sort) {
 				this.networkDevices.sort(function(a, b) {
 					var stringA, stringB;
-					stringA = (a.type != "Unknown" ? "_" + a.name + a.macAddress : a.name);
-					stringB = (b.type != "Unknown" ? "_" + b.name + b.macAddress : b.name);
+					if (self.config.sortBy == "type") {
+						stringA = a.icon;
+						stringB = b.icon;
+					} else {
+						stringA = (a.type != "Unknown" ? "_" + a.name + a.macAddress : a.name);
+						stringB = (b.type != "Unknown" ? "_" + b.name + b.macAddress : b.name);
+					}
+
+
 
 					return stringA.localeCompare(stringB);
 				});
