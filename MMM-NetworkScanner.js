@@ -261,7 +261,7 @@ Module.register("MMM-NetworkScanner", {
 				//if (self.config.showDeviceColums && device.showInNewRow) {
 				//bp: apped a new row when deviceInOneRow is reached
 				if (self.config.showDeviceColums && deviceInRow > self.config.deviceInOneRow) {
-					deviceInRow = 0;
+					deviceInRow = 1;
 					// append the previously processed devices to the table
 					deviceTable.appendChild(headerRow);
 					deviceTable.appendChild(devStateRow);
