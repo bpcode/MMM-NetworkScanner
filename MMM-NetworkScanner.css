@@ -5,6 +5,9 @@
 .MMM-NetworkScanner .device i {
   padding-left: 0;
   padding-right: 10px;
+  font-size: 100%;
+  font-size: 30px;
+  line-height: 30px;
 }
 
 .MMM-NetworkScanner .date {

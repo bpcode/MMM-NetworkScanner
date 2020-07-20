@@ -186,7 +186,7 @@ Module.register("MMM-NetworkScanner", {
 		var self = this;
 
 		var wrapper = document.createElement("div");
-		wrapper.classList.add("small");
+		wrapper.classList.add("medium");
 
 		// Display a loading message
 		if (!this.networkDevices) {
@@ -196,7 +196,7 @@ Module.register("MMM-NetworkScanner", {
 
 		// Display device status
 		var deviceTable = document.createElement("table");
-		deviceTable.classList.add("deviceTable", "small");
+		deviceTable.classList.add("deviceTable", "medium");
 
 		// sjj: Show devices in columns
 		// generate header row and device state row
